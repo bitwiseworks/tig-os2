@@ -39,7 +39,8 @@ elif test "$ax_cv_curses_which" = "ncurses"; then
 	[AC_CHECK_LIB(ncurses, tgetent, bash_cv_termcap_lib=libncurses)]
 elif test "$ax_cv_curses_which" = "plaincurses"; then
 	[AC_CHECK_LIB(curses, tgetent, bash_cv_termcap_lib=libcurses)]
-else
+fi
+if test "X$bash_cv_termcap_lib" = "X"; then
 	[AC_CHECK_LIB(termcap, tgetent, bash_cv_termcap_lib=libtermcap,
 		[AC_CHECK_LIB(tinfo, tgetent, bash_cv_termcap_lib=libtinfo,
 			bash_cv_termcap_lib=gnutermcap
