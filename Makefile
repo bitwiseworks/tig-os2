@@ -46,8 +46,8 @@ RPM_VERSION = $(word 1,$(RPM_VERLIST))
 RPM_RELEASE = $(word 2,$(RPM_VERLIST))$(if $(WTDIRTY),.dirty)
 
 DFLAGS	= -g -DDEBUG -Werror -O0
-EXE	= src/tig
-TOOLS	= test/tools/test-graph tools/doc-gen
+EXE	= src/tig$(EXEEXT)
+TOOLS	= test/tools/test-graph$(EXEEXT) tools/doc-gen$(EXEEXT)
 TXTDOC	= doc/tig.1.adoc doc/tigrc.5.adoc doc/manual.adoc NEWS.adoc README.adoc INSTALL.adoc
 MANDOC	= doc/tig.1 doc/tigrc.5 doc/tigmanual.7
 HTMLDOC = doc/tig.1.html doc/tigrc.5.html doc/manual.html README.html INSTALL.html NEWS.html
@@ -157,10 +157,10 @@ update-headers:
 		echo "Updated $$file"; \
 	done
 
-update-docs: tools/doc-gen
+update-docs: tools/doc-gen$(EXEEXT)
 	doc="doc/tigrc.5.adoc"; \
 	sed -n '0,/ifndef::DOC_GEN_ACTIONS/p' < "$$doc" > "$$doc.gen"; \
-	./tools/doc-gen actions >> "$$doc.gen"; \
+	./tools/doc-gen$(EXEEXT) actions >> "$$doc.gen"; \
 	sed -n '/endif::DOC_GEN_ACTIONS/,$$p' < "$$doc" >> "$$doc.gen" ; \
 	mv "$$doc.gen" "$$doc"
 
@@ -217,7 +217,7 @@ test: clean-test $(TESTS)
 export TIG_TEST_OPTS = $(V:1=no-indent)
 
 $(TESTS): PATH := $(CURDIR)/test/tools:$(CURDIR)/src:$(PATH)
-$(TESTS): $(EXE) test/tools/test-graph
+$(TESTS): $(EXE) test/tools/test-graph$(EXEEXT)
 	$(QUIET_TEST)$(TEST_SHELL) $@
 
 # Other autoconf-related rules are hidden in config.make.in so that
@@ -296,19 +296,19 @@ TIG_OBJS = \
 	$(GRAPH_OBJS) \
 	$(COMPAT_OBJS)
 
-src/tig: $(TIG_OBJS)
+$(EXE): $(TIG_OBJS)
 
 TEST_GRAPH_OBJS = test/tools/test-graph.o src/string.o src/util.o src/io.o $(GRAPH_OBJS) $(COMPAT_OBJS)
-test/tools/test-graph: $(TEST_GRAPH_OBJS)
+test/tools/test-graph$(EXEEXT): $(TEST_GRAPH_OBJS)
 
 DOC_GEN_OBJS = tools/doc-gen.o src/string.o src/types.o src/util.o src/request.o
-tools/doc-gen: $(DOC_GEN_OBJS)
+tools/doc-gen$(EXEEXT): $(DOC_GEN_OBJS)
 
 OBJS = $(sort $(TIG_OBJS) $(TEST_GRAPH_OBJS) $(DOC_GEN_OBJS))
 
 DEPS_CFLAGS ?= -MMD -MP -MF .deps/$*.d
 
-%: %.o
+%$(EXEEXT): %.o
 	$(QUIET_LINK)$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 %.o: %.c $(CONFIG_H)
