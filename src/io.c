@@ -15,6 +15,11 @@
 #include "tig/util.h"
 #include "tig/io.h"
 
+#ifdef __KLIBC__
+#include <sys/socket.h>
+#define pipe(p) socketpair(AF_UNIX, SOCK_STREAM, 0, p)
+#endif
+
 /*
  * Encoding conversion.
  */
