@@ -686,7 +686,14 @@ main(int argc, const char *argv[])
 	if (codeset && strcmp(codeset, ENCODING_UTF8)) {
 		char translit[SIZEOF_STR];
 
+#ifdef __KLIBC__
+		/* kLIBC iconv_open() uses OS/2 native Unicode functions which
+		 * don't support something like //TRANSLIT, best we can do
+		 * is to replace missing chars with '?' to retain string length. */
+		if (string_format(translit, "%s@subchar=\\x3F", codeset))
+#else
 		if (string_format(translit, "%s%s", codeset, ICONV_TRANSLIT))
+#endif
 			opt_iconv_out = iconv_open(translit, ENCODING_UTF8);
 		else
 			opt_iconv_out = iconv_open(codeset, ENCODING_UTF8);
